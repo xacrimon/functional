@@ -81,13 +81,11 @@ func ForEach[T any, I Iter[T]](iter I, f func(T)) {
 	}
 }
 
-type CollectFunction[Acc, T any] func(Acc, T) Acc
-
-func IterIntoSlice[T any](acc []T, item T) []T {
+func IterCollectSlice[T any](acc []T, item T) []T {
 	return append(acc, item)
 }
 
-func IterIntoMap[K comparable, V any](acc map[K]V, item Tuple2[K, V]) map[K]V {
+func IterCollectMap[K comparable, V any](acc map[K]V, item Tuple2[K, V]) map[K]V {
 	if acc == nil {
 		acc = make(map[K]V)
 	}
@@ -96,7 +94,7 @@ func IterIntoMap[K comparable, V any](acc map[K]V, item Tuple2[K, V]) map[K]V {
 	return acc
 }
 
-func IterCollect[Acc, T any, I Iter[T]](iter I, f CollectFunction[Acc, T]) Acc {
+func IterFold[Acc, T any, I Iter[T]](iter I, f func(Acc, T) Acc) Acc {
 	var acc Acc
 	ForEach(iter, func(item T) { acc = f(acc, item) })
 	return acc

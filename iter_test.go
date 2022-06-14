@@ -35,7 +35,7 @@ func TestIterSliceCollect(t *testing.T) {
 	expected := []int{2, 4, 6, 8, 10}
 	iter := SliceIter(slice)
 	iter = IterMap(iter, func(i int) int { return i * 2 })
-	got := IterCollect(iter, IterIntoSlice[int])
+	got := IterFold(iter, IterIntoSlice[int])
 	require.Equal(t, expected, got)
 }
 
