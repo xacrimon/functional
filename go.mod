@@ -1,3 +1,3 @@
-module goiter
+module functional
 
 go 1.18
