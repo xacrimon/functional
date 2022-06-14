@@ -30,17 +30,17 @@ type mapIter[K, V any] struct {
 	index int
 }
 
-func (iter *mapIter[K, V]) Next() Option[Cons[K, V]] {
+func (iter *mapIter[K, V]) Next() Option[Tuple2[K, V]] {
 	if !iter.inner.Next() {
-		return OptionNone[Cons[K, V]]()
+		return OptionNone[Tuple2[K, V]]()
 	}
 
 	key := iter.inner.Key().Interface().(K)
 	value := iter.inner.Value().Interface().(V)
-	return OptionSome(Cons[K, V]{key, value})
+	return OptionSome(Tuple2[K, V]{key, value})
 }
 
-func MapIter[K comparable, V any](m map[K]V) Iter[Cons[K, V]] {
+func MapIter[K comparable, V any](m map[K]V) Iter[Tuple2[K, V]] {
 	return &mapIter[K, V]{reflect.ValueOf(m).MapRange(), 0}
 }
 
@@ -51,4 +51,18 @@ func Count[T, I Iter[T]](iter I) int {
 	}
 
 	return i
+}
+
+type iterMap[T, U any, I Iter[T]] struct {
+	inner I
+	f     func(T) U
+}
+
+func (iter *iterMap[T, U, I]) Next() Option[U] {
+	item := iter.inner.Next()
+	return OptionMap(item, iter.f)
+}
+
+func IterMap[T, U any, I Iter[T]](iter I, f func(T) U) Iter[U] {
+	return &iterMap[T, U, I]{iter, f}
 }

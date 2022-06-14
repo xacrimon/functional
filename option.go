@@ -191,15 +191,15 @@ func OptionContains[T comparable](opt Option[T], value T) bool {
 	return opt.some && opt.value == value
 }
 
-func OptionZip[T1, T2 any](optA Option[T1], optB Option[T2]) Option[Cons[T1, T2]] {
+func OptionZip[T1, T2 any](optA Option[T1], optB Option[T2]) Option[Tuple2[T1, T2]] {
 	if !optA.some || !optB.some {
-		return OptionNone[Cons[T1, T2]]()
+		return OptionNone[Tuple2[T1, T2]]()
 	}
 
-	return OptionSome(Cons[T1, T2]{optA.value, optB.value})
+	return OptionSome(Tuple2[T1, T2]{optA.value, optB.value})
 }
 
-func OptionUnzip[T1, T2 any](opt Option[Cons[T1, T2]]) (Option[T1], Option[T2]) {
+func OptionUnzip[T1, T2 any](opt Option[Tuple2[T1, T2]]) (Option[T1], Option[T2]) {
 	if !opt.some {
 		return OptionNone[T1](), OptionNone[T2]()
 	}
