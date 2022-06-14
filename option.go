@@ -5,6 +5,8 @@ package functional
 // - OptionIter*
 // - Result
 // - Iterator
+// - IterAdvanceBy
+// - Iter collect to result
 
 type Option[T any] struct {
 	value T
