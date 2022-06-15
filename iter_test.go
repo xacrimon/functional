@@ -1,6 +1,7 @@
 package functional
 
 import (
+	"math/rand"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -44,7 +45,7 @@ func TestIterate(t *testing.T) {
 	iter := SliceIter(slice)
 
 	i := 0
-	iter2, cancel := Iterate[int](iter)
+	iter2, cancel := Iterate(iter)
 	defer cancel()
 	for got := range iter2 {
 		require.Equal(t, slice[i], got)
@@ -143,4 +144,48 @@ func TestZip(t *testing.T) {
 		got := OptionMap(iter.Next(), func(t Tuple2[int, int]) int { return t.A + t.B })
 		require.Equal(t, OptionSome(expected), got)
 	}
+}
+
+var __bench_source = []int{}
+var __bench_result int
+
+func init() {
+	for i := 0; i < 100000; i++ {
+		__bench_source = append(__bench_source, rand.Intn(5989))
+	}
+}
+
+func TestBenchEquivalent(t *testing.T) {
+	iterDoubleFoldSum()
+	v1 := __bench_result
+	loopDoubleFoldSum()
+	v2 := __bench_result
+	require.Equal(t, v1, v2)
+}
+
+func BenchmarkIterDoubleFoldSum(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		iterDoubleFoldSum()
+	}
+}
+
+func BenchmarkLoopDoubleFoldSum(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		loopDoubleFoldSum()
+	}
+}
+
+func iterDoubleFoldSum() {
+	iter := SliceIter(__bench_source)
+	iter = IterMap(iter, func(i int) int { return i * 2 })
+	__bench_result = IterFold(iter, func(i int, j int) int { return i + j })
+}
+
+func loopDoubleFoldSum() {
+	sum := 0
+	for _, v := range __bench_source {
+		sum += v * 2
+	}
+
+	__bench_result = sum
 }
