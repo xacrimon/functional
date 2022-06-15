@@ -94,8 +94,7 @@ func IterCollectMap[K comparable, V any](acc map[K]V, item Tuple2[K, V]) map[K]V
 	return acc
 }
 
-func IterFold[Acc, T any](iter Iter[T], f func(Acc, T) Acc) Acc {
-	var acc Acc
+func IterFold[Acc, T any](iter Iter[T], acc Acc, f func(Acc, T) Acc) Acc {
 	ForEach(iter, func(item T) { acc = f(acc, item) })
 	return acc
 }

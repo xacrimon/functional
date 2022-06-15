@@ -36,7 +36,7 @@ func TestIterSliceCollect(t *testing.T) {
 	expected := []int{2, 4, 6, 8, 10}
 	iter := SliceIter(slice)
 	iter = IterMap(iter, func(i int) int { return i * 2 })
-	got := IterFold(iter, IterCollectSlice[int])
+	got := IterFold(iter, nil, IterCollectSlice[int])
 	require.Equal(t, expected, got)
 }
 
@@ -178,7 +178,7 @@ func BenchmarkLoopDoubleFoldSum(b *testing.B) {
 func iterDoubleFoldSum() {
 	iter := SliceIter(__bench_source)
 	iter = IterMap(iter, func(i int) int { return i * 2 })
-	__bench_result = IterFold(iter, func(i int, j int) int { return i + j })
+	__bench_result = IterFold(iter, 0, func(i int, j int) int { return i + j })
 }
 
 func loopDoubleFoldSum() {
