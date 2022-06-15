@@ -101,7 +101,7 @@ func IterFold[Acc, T any, I Iter[T]](iter I, f func(Acc, T) Acc) Acc {
 }
 
 func Iterate[T any, I Iter[T]](iter I) (<-chan T, func()) {
-	ch := make(chan T, 1)
+	ch := make(chan T)
 	once := &sync.Once{}
 	close := func() { once.Do(func() { close(ch) }) }
 
