@@ -1,4 +1,4 @@
-module functional
+module github.com/xacrimon/functional
 
 go 1.18
 
