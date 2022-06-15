@@ -47,7 +47,7 @@ func MapIter[K comparable, V any](m map[K]V) Iter[Tuple2[K, V]] {
 	return &mapIter[K, V]{reflect.ValueOf(m).MapRange(), 0}
 }
 
-func Count[T, I Iter[T]](iter I) int {
+func Count[T any](iter Iter[T]) int {
 	var i int
 	for OptionIsSome(iter.Next()) {
 		i++
@@ -56,21 +56,21 @@ func Count[T, I Iter[T]](iter I) int {
 	return i
 }
 
-type iterMap[T, U any, I Iter[T]] struct {
-	inner I
+type iterMap[T, U any] struct {
+	inner Iter[T]
 	f     func(T) U
 }
 
-func (iter *iterMap[T, U, I]) Next() Option[U] {
+func (iter *iterMap[T, U]) Next() Option[U] {
 	item := iter.inner.Next()
 	return OptionMap(item, iter.f)
 }
 
-func IterMap[T, U any, I Iter[T]](iter I, f func(T) U) Iter[U] {
-	return &iterMap[T, U, I]{iter, f}
+func IterMap[T, U any](iter Iter[T], f func(T) U) Iter[U] {
+	return &iterMap[T, U]{iter, f}
 }
 
-func ForEach[T any, I Iter[T]](iter I, f func(T)) {
+func ForEach[T any](iter Iter[T], f func(T)) {
 	for {
 		item := iter.Next()
 		if OptionIsNone(item) {
@@ -94,13 +94,13 @@ func IterCollectMap[K comparable, V any](acc map[K]V, item Tuple2[K, V]) map[K]V
 	return acc
 }
 
-func IterFold[Acc, T any, I Iter[T]](iter I, f func(Acc, T) Acc) Acc {
+func IterFold[Acc, T any](iter Iter[T], f func(Acc, T) Acc) Acc {
 	var acc Acc
 	ForEach(iter, func(item T) { acc = f(acc, item) })
 	return acc
 }
 
-func Iterate[T any, I Iter[T]](iter I) (<-chan T, func()) {
+func Iterate[T any](iter Iter[T]) (<-chan T, func()) {
 	ch := make(chan T)
 	once := &sync.Once{}
 	close := func() { once.Do(func() { close(ch) }) }
