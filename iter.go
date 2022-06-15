@@ -233,3 +233,23 @@ func (iter *iterSkipWhile[T]) Next() Option[T] {
 func IterSkipWhile[T any](iter Iter[T], predicate func(*T) bool) Iter[T] {
 	return &iterSkipWhile[T]{iter, predicate}
 }
+
+type iterZip[T1, T2 any] struct {
+	iter1 Iter[T1]
+	iter2 Iter[T2]
+}
+
+func (iter *iterZip[T1, T2]) Next() Option[Tuple2[T1, T2]] {
+	item1 := iter.iter1.Next()
+	item2 := iter.iter2.Next()
+
+	if OptionIsNone(item1) || OptionIsNone(item2) {
+		return OptionNone[Tuple2[T1, T2]]()
+	}
+
+	return OptionSome(Tuple2[T1, T2]{item1.value, item2.value})
+}
+
+func IterZip[T1, T2 any](iter1 Iter[T1], iter2 Iter[T2]) Iter[Tuple2[T1, T2]] {
+	return &iterZip[T1, T2]{iter1, iter2}
+}

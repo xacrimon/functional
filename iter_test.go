@@ -129,3 +129,18 @@ func TestSkipWhile(t *testing.T) {
 		require.Equal(t, OptionSome(expected), got)
 	}
 }
+
+func TestZip(t *testing.T) {
+	a := []int{1, 2, 3, 4, 5}
+	b := []int{6, 7, 8, 9, 10}
+	expected := []int{7, 9, 11, 13, 15}
+
+	iterA := SliceIter(a)
+	iterB := SliceIter(b)
+	iter := IterZip(iterA, iterB)
+
+	for _, expected := range expected {
+		got := OptionMap(iter.Next(), func(t Tuple2[int, int]) int { return t.A + t.B })
+		require.Equal(t, OptionSome(expected), got)
+	}
+}
