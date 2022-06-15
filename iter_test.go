@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestIterSlice(t *testing.T) {
+func TestSliceIter(t *testing.T) {
 	slice := []int{1, 2, 3, 4, 5}
 	iter := SliceIter(slice)
 
@@ -92,6 +92,40 @@ func TestFuncAndFilterMap(t *testing.T) {
 
 	for _, expected := range expected {
 		got := evenPlusOne.Next()
+		require.Equal(t, OptionSome(expected), got)
+	}
+}
+
+func TestSkip(t *testing.T) {
+	x := 0
+	f := func() Option[int] {
+		x++
+		return OptionSome(x)
+	}
+
+	numbers := IterFromFunc(f)
+	skipped := IterSkip(numbers, 5)
+	expected := []int{6, 7, 8, 9, 10}
+
+	for _, expected := range expected {
+		got := skipped.Next()
+		require.Equal(t, OptionSome(expected), got)
+	}
+}
+
+func TestSkipWhile(t *testing.T) {
+	x := 0
+	f := func() Option[int] {
+		x++
+		return OptionSome(x)
+	}
+
+	numbers := IterFromFunc(f)
+	skipped := IterSkipWhile(numbers, func(i *int) bool { return *i < 10 })
+	expected := []int{10, 11, 12, 13, 14}
+
+	for _, expected := range expected {
+		got := skipped.Next()
 		require.Equal(t, OptionSome(expected), got)
 	}
 }

@@ -190,3 +190,46 @@ func (iter *iterFilterMap[T, U]) Next() Option[U] {
 func IterFilterMap[T, U any](iter Iter[T], f func(T) Option[U]) Iter[U] {
 	return &iterFilterMap[T, U]{iter, f}
 }
+
+type iterSkip[T any] struct {
+	inner Iter[T]
+	left  int
+}
+
+func (iter *iterSkip[T]) Next() Option[T] {
+	for iter.left > 0 {
+		iter.left--
+		iter.inner.Next()
+	}
+
+	return iter.inner.Next()
+}
+
+func IterSkip[T any](iter Iter[T], amount int) Iter[T] {
+	return &iterSkip[T]{iter, amount}
+}
+
+type iterSkipWhile[T any] struct {
+	inner     Iter[T]
+	predicate func(*T) bool
+}
+
+func (iter *iterSkipWhile[T]) Next() Option[T] {
+	for iter.predicate != nil {
+		item := iter.inner.Next()
+		if OptionIsNone(item) {
+			return item
+		}
+
+		if !iter.predicate(&item.value) {
+			iter.predicate = nil
+			return item
+		}
+	}
+
+	return iter.inner.Next()
+}
+
+func IterSkipWhile[T any](iter Iter[T], predicate func(*T) bool) Iter[T] {
+	return &iterSkipWhile[T]{iter, predicate}
+}
