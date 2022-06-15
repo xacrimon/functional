@@ -2,11 +2,8 @@ package functional
 
 // TODO:
 // - OptionOkOr*
-// - OptionIter*
 // - Result
-// - Iterator
-// - IterAdvanceBy
-// - Iter collect to result
+// - Iter collect to result/option
 
 type Option[T any] struct {
 	value T

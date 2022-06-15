@@ -51,3 +51,23 @@ func TestIterate(t *testing.T) {
 		i++
 	}
 }
+
+func TestFuncAndFilterAndTake(t *testing.T) {
+	x := 0
+	f := func() Option[int] {
+		x++
+		return OptionSome(x)
+	}
+
+	numbers := IterFromFunc(f)
+	even := IterFilter(numbers, func(i *int) bool { return *i%2 == 0 })
+	firstFive := IterTake(even, 5)
+	expected := []int{2, 4, 6, 8, 10}
+
+	for _, expected := range expected {
+		got := firstFive.Next()
+		require.Equal(t, OptionSome(expected), got)
+	}
+
+	require.True(t, OptionIsNone(firstFive.Next()))
+}

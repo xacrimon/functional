@@ -119,3 +119,51 @@ func Iterate[T any, I Iter[T]](iter I) (<-chan T, func()) {
 
 	return ch, close
 }
+
+type iterFunc[T any] struct {
+	f func() Option[T]
+}
+
+func (iter *iterFunc[T]) Next() Option[T] {
+	return iter.f()
+}
+
+func IterFromFunc[T any](f func() Option[T]) Iter[T] {
+	return &iterFunc[T]{f}
+}
+
+type iterFilter[T any] struct {
+	inner     Iter[T]
+	predicate func(*T) bool
+}
+
+func (iter *iterFilter[T]) Next() Option[T] {
+	for {
+		item := iter.inner.Next()
+		if OptionIsNone(item) || iter.predicate(&item.value) {
+			return item
+		}
+	}
+}
+
+func IterFilter[T any](iter Iter[T], predicate func(*T) bool) Iter[T] {
+	return &iterFilter[T]{iter, predicate}
+}
+
+type iterTake[T any] struct {
+	inner Iter[T]
+	left  int
+}
+
+func (iter *iterTake[T]) Next() Option[T] {
+	if iter.left > 0 {
+		iter.left--
+		return iter.inner.Next()
+	}
+
+	return OptionNone[T]()
+}
+
+func IterTake[T any](iter Iter[T], amount int) Iter[T] {
+	return &iterTake[T]{iter, amount}
+}
