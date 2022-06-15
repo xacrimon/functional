@@ -71,3 +71,27 @@ func TestFuncAndFilterAndTake(t *testing.T) {
 
 	require.True(t, OptionIsNone(firstFive.Next()))
 }
+
+func TestFuncAndFilterMap(t *testing.T) {
+	x := 0
+	f := func() Option[int] {
+		x++
+		return OptionSome(x)
+	}
+
+	numbers := IterFromFunc(f)
+	evenPlusOne := IterFilterMap(numbers, func(i int) Option[int] {
+		if i%2 == 0 {
+			return OptionSome(i + 1)
+		}
+
+		return OptionNone[int]()
+	})
+
+	expected := []int{3, 5, 7, 9, 11}
+
+	for _, expected := range expected {
+		got := evenPlusOne.Next()
+		require.Equal(t, OptionSome(expected), got)
+	}
+}

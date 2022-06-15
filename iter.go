@@ -167,3 +167,26 @@ func (iter *iterTake[T]) Next() Option[T] {
 func IterTake[T any](iter Iter[T], amount int) Iter[T] {
 	return &iterTake[T]{iter, amount}
 }
+
+type iterFilterMap[T, U any] struct {
+	inner Iter[T]
+	f     func(T) Option[U]
+}
+
+func (iter *iterFilterMap[T, U]) Next() Option[U] {
+	for {
+		item := iter.inner.Next()
+		if OptionIsNone(item) {
+			return OptionNone[U]()
+		}
+
+		mapped := iter.f(item.value)
+		if OptionIsSome(mapped) {
+			return mapped
+		}
+	}
+}
+
+func IterFilterMap[T, U any](iter Iter[T], f func(T) Option[U]) Iter[U] {
+	return &iterFilterMap[T, U]{iter, f}
+}
